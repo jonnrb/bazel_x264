@@ -1,7 +1,6 @@
 #define HAVE_X86_INLINE_ASM 1
 #define HAVE_MMX 1
 #define ARCH_X86_64 1
-#define STACK_ALIGNMENT 16
 #define HAVE_POSIXTHREAD 1
 #define HAVE_THREAD 1
 #define HAVE_LOG2F 1
@@ -11,6 +10,8 @@
 #define HAVE_AVS 1
 #define USE_AVXSYNTH 1
 #define HAVE_VECTOREXT 1
+#define fseek fseeko
+#define ftell ftello
 #define HIGH_BIT_DEPTH 1
 #define HAVE_GPL 1
 #define HAVE_INTERLACED 1
@@ -24,7 +25,6 @@
 #define HAVE_WIN32THREAD 0
 #define HAVE_FFMS 0
 #define HAVE_GPAC 0
-#define HAVE_CPU_COUNT 0
 #define HAVE_OPENCL 0
 #define HAVE_THP 0
 #define HAVE_LSMASH 0
@@ -34,11 +34,3 @@
 #define HAVE_WINRT 0
 #define HAVE_VSX 0
 #define HAVE_ARM_INLINE_ASM 0
-#define X264_BIT_DEPTH ${BIT_DEPTH}
-#define X264_GPL 1
-#define X264_INTERLACED 1
-#define X264_CHROMA_FORMAT 0
-#define X264_REV 2851
-#define X264_REV_DIFF 0
-#define X264_VERSION " r2851 ba24899"
-#define X264_POINTVER "0.152.2851 ba24899"

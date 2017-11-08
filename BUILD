@@ -4,6 +4,18 @@ load("@jonnrb_bazel_asm//rules:nasm_library.bzl", "nasm_library")
 
 BIT_DEPTH = "10"
 
+config_setting(
+    name = "linux",
+    values = {"cpu": "k8"},
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "macos",
+    values = {"cpu": "darwin"},
+    visibility = ["//visibility:public"],
+)
+
 genrule(
     name = "gen_files",
     srcs = [
@@ -21,22 +33,24 @@ genrule(
 CC_COPTS = [
     "-D_GNU_SOURCE",
 ] + select({
-    "@bazel_tools//src:darwin": ["-DSYS_MACOSX=1"],
+    ":linux": ["-DSYS_LINUX=1"],
+    ":macos": ["-DSYS_MACOSX=1"],
 })
 
-NASM_COPTS = select({
-    "@bazel_tools//src:darwin": [
-        "-f",
-        "macho64",
-    ],
-}) + [
+NASM_COPTS = [
     "-DARCH_X86_64=1",
     "-DHIGH_BIT_DEPTH=1",
     "-DBIT_DEPTH=" + BIT_DEPTH,
     "-DPIC",
-    "-DPREFIX",
-    "-DSTACK_ALIGNMENT=16",
-]
+] + select({
+    ":linux": [
+        "-DSTACK_ALIGNMENT=64",
+    ],
+    ":macos": [
+        "-DPREFIX",
+        "-DSTACK_ALIGNMENT=16",
+    ],
+})
 
 cc_library(
     name = "x264",
@@ -50,6 +64,13 @@ cc_library(
         ":common_x86",
         ":encoder",
     ],
+)
+
+cc_library(
+    name = "x264_isystem",
+    deps = [":x264"],
+    includes = ["x264"],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -83,6 +104,7 @@ cc_library(
     ]),
     strip_include_prefix = "x264/common/x86",
     deps = [":headers"],
+    linkstatic = 1,
 )
 
 cc_library(
@@ -103,7 +125,10 @@ cc_library(
         ]
     ),
     strip_include_prefix = "x264/encoder",
-    deps = [":headers"],
+    deps = [
+        ":common",
+        ":headers"
+    ],
 )
 
 cc_library(

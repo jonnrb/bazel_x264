@@ -56,101 +56,58 @@ NASM_COPTS = [
 
 cc_library(
     name = "x264",
+    srcs = [":asm"] + glob(
+        include = [
+            "x264/common/*.h",
+            "x264/common/*.c",
+            "x264/common/x86/*.h",
+            "x264/common/x86/*.c",
+            "x264/encoder/*.h",
+            "x264/encoder/*.c",
+        ],
+        exclude = [
+            "x264/common/opencl.c",
+            "x264/common/win32thread.c",
+            "x264/encoder/rdo.c",
+            "x264/encoder/slicetype.c",
+        ],
+    ) + [
+        "x264/config.h",
+        "x264/x264_config.h",
+    ],
     hdrs = ["x264/x264.h"],
-    copts = CC_COPTS,
-    strip_include_prefix = "x264",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":headers",
-        ":common",
-        ":common_x86",
-        ":encoder",
+    copts = CC_COPTS + [
+        "-I$(GENDIR)/x264",
+        "-Ix264",
+        "-Ix264/common",
+        "-Ix264/encoder",
+        "-I$(GENDIR)/external/jonnrb_bazel_x264/x264",
+        "-Iexternal/jonnrb_bazel_x264/x264",
+        "-Iexternal/jonnrb_bazel_x264/x264/common",
+        "-Iexternal/jonnrb_bazel_x264/x264/encoder",
     ],
-)
-
-cc_library(
-    name = "x264_isystem",
-    deps = [":x264"],
-    includes = ["x264"],
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "common",
-    hdrs = glob([
-        "x264/common/*.h",
-        "x264/common/x86/*.h",
-    ]),
-    copts = CC_COPTS,
-    srcs = glob([
-        "x264/common/*.c",
-    ], exclude = [
-        "x264/common/opencl.c",
-        "x264/common/win32thread.c",
-    ]),
-    strip_include_prefix = "x264/common",
-    deps = [
-        ":headers",
-        ":common_x86"
-    ],
-)
-
-cc_library(
-    name = "common_x86",
-    hdrs = glob([
-        "x264/common/x86/*.h",
-    ]),
-    copts = CC_COPTS,
-    srcs = [":asm"] + glob([
-        "x264/common/x86/*.c",
-    ]),
-    strip_include_prefix = "x264/common/x86",
-    deps = [":headers"],
     linkstatic = 1,
-)
-
-cc_library(
-    name = "encoder",
-    hdrs = glob(["x264/encoder/*.h"]) + [
+    strip_include_prefix = "x264",
+    textual_hdrs = [
         "x264/encoder/cabac.c",
         "x264/encoder/cavlc.c",
         "x264/encoder/rdo.c",
         "x264/encoder/slicetype.c",
     ],
-    copts = CC_COPTS,
-    srcs = glob(
-        [
-            "x264/encoder/*.c",
-        ], exclude = [
-            "x264/encoder/rdo.c",
-            "x264/encoder/slicetype.c",
-        ]
-    ),
-    strip_include_prefix = "x264/encoder",
-    deps = [
-        ":common",
-        ":headers"
-    ],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
-    name = "headers",
-    hdrs = [
-        "x264/x264.h",
-        "x264/config.h",
-        "x264/x264_config.h",
-    ] + glob([
-        "x264/common/*.h",
-        "x264/common/x86/*.h",
-        "x264/encoder/*.h",
-    ]),
-    strip_include_prefix = "x264",
+    name = "x264_isystem",
+    includes = ["x264"],
+    visibility = ["//visibility:public"],
+    deps = [":x264"],
 )
 
 nasm_library(
     name = "asm",
     srcs = glob(
-        [
+        include = [
             "x264/common/x86/*.asm",
         ],
         exclude = [

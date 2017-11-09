@@ -19,14 +19,16 @@ config_setting(
 genrule(
     name = "gen_files",
     srcs = [
-        "config.h.in",
+        "x264_config.h.in",
+        "config.h",
     ],
     outs = [
         "x264/config.h",
         "x264/x264_config.h",
     ],
-    cmd = "sed 's/$${BIT_DEPTH}/" + BIT_DEPTH + "/g' $(location :config.h.in) > $(location :x264/config.h);" +
-          "touch $(location :x264/x264_config.h);" +
+    cmd = "sed 's/$${BIT_DEPTH}/" + BIT_DEPTH + "/g'" +
+          "  $(location :x264_config.h.in) > $(location :x264/x264_config.h);" +
+          "cp $(location config.h) $(location :x264/config.h);" +
           "",
 )
 
